@@ -1,6 +1,6 @@
 'use client';
 
-import React, { use, useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import {
   Box,
   Button,
@@ -15,6 +15,7 @@ import {
   TableRow,
   TextField,
 } from '@mui/material';
+import { useRouter } from 'next/navigation';
 
 const ordersData = [
   {
@@ -49,8 +50,9 @@ export default function ListaPedidos({
   const [pedidosSelecionados, setPedidosSelecionados] = React.useState<
     string[]
   >([]);
-
   const [searchCpfCnpj, setSearchCpfCnpj] = React.useState<string>('');
+
+  const router = useRouter();
 
   const handleSelectOrder = (orderId: string) => {
     if (pedidosSelecionados.includes(orderId)) {
@@ -63,17 +65,11 @@ export default function ListaPedidos({
   };
 
   const handlePayOrders = () => {
-    // Logic to pay selected orders
-    console.log('Selected Orders:', pedidosSelecionados);
-    // Reset selected orders
-    // setPedidosSelecionados([]);
+    const queryParams = pedidosSelecionados
+      .map((pedido) => `pedido[]=${pedido}`)
+      .join('&');
+    router.push('/pagamento?' + queryParams);
   };
-
-  const params = useMemo(() => {
-    return {
-      CpfCnpj: searchCpfCnpj,
-    };
-  }, [searchCpfCnpj]);
 
   useEffect(() => {
     async function getPedidos() {
@@ -96,7 +92,6 @@ export default function ListaPedidos({
 
       const response = await fetch(url, requestOptions);
       const data = (await response.json()) as FaturaResponse;
-      console.log({ data });
       setPedidos(data);
     }
 
